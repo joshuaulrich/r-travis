@@ -157,7 +157,7 @@ BootstrapMacOptions() {
 }
 
 EnsureDevtools() {
-    if ! Rscript -e 'if (!("devtools" %in% rownames(installed.packages()))) q(status=1)' ; then
+    if ! Rscript -e 'if (!require("devtools")) q(status=1)' ; then
         # Install devtools and testthat.
         RBinaryInstall devtools testthat
     fi
@@ -238,11 +238,13 @@ RBinaryInstall() {
 }
 
 InstallGithub() {
-    EnsureDevtools
+    if ! Rscript -e 'if (!require("ghit")) q(status=1)' ; then
+        RBinaryInstall ghit
+    fi
 
     echo "Installing GitHub packages: $@"
     # Install the package.
-    Rscript -e 'library(devtools); library(methods); install_github(commandArgs(TRUE), build_vignettes = FALSE)' "$@"
+    Rscript -e 'library(ghit); library(methods); install_github(commandArgs(TRUE), build_vignettes = FALSE)' "$@"
 }
 
 InstallDeps() {
